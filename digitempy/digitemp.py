@@ -4,12 +4,18 @@ import os
 import sh
 import simplejson
 
+
+
 class Digitemp():
     
     def __init__(self):
-        self.is_installed       = 0
-        self.username           = sh.whoami().stdout[:-1]
-        self.config_file_path   = '/home/%s/digitemp/' % self.username
+        
+        # Flags used to control execution
+        self._installed         = 0 
+        self._connected         = 0
+        self._configured        = 0
+                        
+        self.config_file_path   = os.path.dirname(os.path.realpath(__file__)) + '/../config/'
         self.config_filename    = 'digitemp.conf'
         self.digitemp_cmd_str   = 'digitemp_DS2490'
         self.digitemp           = sh.Command(self.digitemp_cmd_str)        
@@ -17,8 +23,9 @@ class Digitemp():
         self.usb_bus_num        = 0
         self.num_of_sensors     = []
         self.serial_number_list = []       
-        self.installed          = self.IsInstalled()
-        self.IsConnected()
+        
+        self.GetStatus()
+      
     
     
     def _DigitempErrorCallback(self,lines):
@@ -29,10 +36,12 @@ class Digitemp():
         out = sh.which(self.digitemp_cmd_str)
         if out is None:
             logging.error('digitemp_DS2490 not found on the system, use sudo apt-get install digitemp')
-            return False
+            self._installed = False             
         else:
             logging.info("Found digitemp_DS2490 in : %s" % out)
-            return True
+            self._installed = True
+        return self._installed
+            
     
     def IsConnected(self):
         logging.debug("def IsConnected(self):")
@@ -44,10 +53,14 @@ class Digitemp():
             logging.info("Found 1 wire adapter bus: %s, device: %s" % (device_data[0][0],device_data[0][1]) )
             self.usb_bus_num = device_data[0][0]
             self.usb_dev_num = device_data[0][1]
-            return True         
+            self._connected = True                     
         else:
             logging.error('Did not find any devices matching: "%s"' % expr)
-            return False
+            self.usb_bus_num = 0
+            self.usb_dev_num = 0
+            self._connected = False
+        return self._connected
+            
     
     def IsConfigured(self):
         if self.IsConnected() and self.IsInstalled():
@@ -56,10 +69,11 @@ class Digitemp():
             with sh.sudo:
                 ret = sh.chmod('777',dev_path)
                 ret = sh.modprobe('-r', 'ds2490')            
-            print ret
-            
+            self._configured = True    
         else:
-            pass
+            self._configured = False
+        
+        return self._configured
     
     def GenerateConfigFile(self):
         if os.path.exists(self.config_file_path):
@@ -71,9 +85,12 @@ class Digitemp():
                 logging.debug('Config file created')
             else:
                 logging.error("Problems creating config file direcotyr")
+        
+        if self.IsConnected():
+            full_file_name=self.config_file_path + self.config_filename           
+            ret = self.digitemp('-q','-i','-c%s' % full_file_name)
+            print ret
             
-        ret = self.digitemp('-q','-i','-c %s/digitemp.conf' % self.config_file_path)
-        print ret
     
     def ParseConfigFile(self):
         """ Function loads the contents of the digitemp.conf file and parses the contents.
@@ -90,7 +107,7 @@ class Digitemp():
          
         """
         
-        full_file_name=self.config_file_path + self.config_filename
+        full_file_name=self.config_file_path + self.config_filename        
         if self.ConfigFileExists():
            
             file_content = self.LoadConfigFile()
@@ -116,21 +133,24 @@ class Digitemp():
             return None
     
     def GetData(self):
-        ret = self.digitemp('-a', '-q',  '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
-        
-        data_expr = re.compile('(?:<data>)(\[.*\])(?:</data>)')
-        data_vector_str = data_expr.findall(ret.stdout)
-        
-        number_of_readings = len(data_vector_str)
-        num_of_sensors = self.ParseConfigFile().get('num_of_sensors')
-        if not number_of_readings == num_of_sensors:
-            logging.warning('Number of temperature readings %d is less then number of sensors in the config file %d'
-                         %(number_of_readings,num_of_sensors))
-        
         data = []
-        for reading in data_vector_str:
-            data.append(simplejson.loads(reading))
+        if self.IsConnected() and self.IsConfigured() and self.ConfigFileExists():
+            ret = self.digitemp('-a', '-q',  '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
+            
+            data_expr = re.compile('(?:<data>)(\[.*\])(?:</data>)')
+            data_vector_str = data_expr.findall(ret.stdout)
+            
+            number_of_readings = len(data_vector_str)
+            num_of_sensors = self.ParseConfigFile().get('num_of_sensors')
+            if not number_of_readings == num_of_sensors:
+                logging.warning('Number of temperature readings %d is less then number of sensors in the config file %d'
+                             %(number_of_readings,num_of_sensors))
+            
+            for reading in data_vector_str:
+                data.append(simplejson.loads(reading))
+        
         return data
+        
 
     def SerialNumberToDec(self, hex_str):
         dec_vector = []
@@ -139,9 +159,11 @@ class Digitemp():
         return dec_vector    
         
     def GetStatus(self):
-        print "Digitemp installed : ", self.IsInstalled()
-        print "Device connected   : ", self.IsConnected()
-        print "Device configured  : ", self.IsConfigured() 
+        print "Checking if %s is installed" % self.digitemp_cmd_str, self.IsInstalled()
+        print "Found connected devices: ", self.IsConnected()
+        print "Device is configured: ", self.IsConfigured()
+        print "Found config path %s: " % self.config_file_path, os.path.exists(self.config_file_path)
+        print "Found config file %s: " % self.config_filename, self.ConfigFileExists() 
     
     def ConfigFileExists(self):
         full_file_name=self.config_file_path + self.config_filename

@@ -1,4 +1,6 @@
 argparse==1.2.1
+ipython==0.13.1
+requests==1.0.3
 sh==1.07
 simplejson==2.6.2
 wsgiref==0.1.2

@@ -7,6 +7,5 @@ import xmlrpclib
 
 RemoteDigitemp = xmlrpclib.ServerProxy('http://localhost:8888')
 
-
 print RemoteDigitemp.ping()
 print RemoteDigitemp.GetData()
