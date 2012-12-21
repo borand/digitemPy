@@ -44,10 +44,11 @@ def submit_data(timestamp=None, serial_number='test-device-instance-001', value=
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)   
-    remote = 0
+    remote = 1
     server_ip = get_host_ip()
+    server_ip = '192.168.1.150'
     if remote:
-        RemoteDigitemp = xmlrpclib.ServerProxy('http://localhost:8888')
+        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:8888' % server_ip)
         print RemoteDigitemp.ping()
         data_set = RemoteDigitemp.GetData()
     else:

@@ -5,13 +5,14 @@ Created on 2012-12-19
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 import digitemp
+from common import get_host_ip
+
 try:
     import requests
 except:
     pass  
 
 D = digitemp.Digitemp()
-D.GetData()
 
 def GetData():
     return D.GetData()
@@ -22,7 +23,7 @@ def GetSubmitData():
 def ping():
     return 'pong'
 
-def main(host='localhost', port=8888):
+def main(host=get_host_ip(), port=8888):
     server = SimpleXMLRPCServer((host, port))
     server.register_introspection_functions()
     server.register_function(ping)
