@@ -9,8 +9,10 @@ import logging
 import requests
 import sh
 import re
+import digitemp
 
-RemoteDigitemp = xmlrpclib.ServerProxy('http://localhost:8888')
+
+
 
 def get_host_ip():
     ip_exp = re.compile('(?:inet addr:192.168.)(\d+\.\d+)')
@@ -42,9 +44,20 @@ def submit_data(timestamp=None, serial_number='test-device-instance-001', value=
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)   
-    print RemoteDigitemp.ping()
-    data_set = RemoteDigitemp.GetData()
+    remote = 0
+    server_ip = get_host_ip()
+    if remote:
+        RemoteDigitemp = xmlrpclib.ServerProxy('http://localhost:8888')
+        print RemoteDigitemp.ping()
+        data_set = RemoteDigitemp.GetData()
+    else:
+        LocalDigitemp = digitemp.Digitemp()
+        data_set = LocalDigitemp.GetData()
+#        for ix in range(len(data)):
+#            c.submit_data(serial_number=data[ix][1], value=data[ix][2],ip='192.168.1.150')
+        
     for data in data_set:
         print "Sending", data
-        res = submit_data(serial_number=data[1], value=data[2], ip=get_host_ip(), port=80)
+        res = submit_data(serial_number=data[1], value=data[2], ip=server_ip, port=80)
         print res
+    
