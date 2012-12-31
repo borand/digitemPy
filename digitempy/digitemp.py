@@ -184,6 +184,8 @@ class Digitemp():
 if __name__ == "__main__":
     #logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)    
     D = Digitemp()
+    if not D.ConfigFileExists():
+        D.GenerateConfigFile()
     print D.ParseConfigFile()
     print D.GetData()
     #D.GetStatus()

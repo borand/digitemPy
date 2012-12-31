@@ -11,16 +11,7 @@ import sh
 import re
 import digitemp
 
-
-
-
-def get_host_ip():
-    ip_exp = re.compile('(?:inet addr:192.168.)(\d+\.\d+)')
-    ip_out = ip_exp.findall(sh.ifconfig().stdout)
-    if len(ip_out) == 1:
-        return '192.168.' + ip_out[0]
-    else:
-        return '127.0.0.1'
+from common import get_host_ip
 
 def submit_data(timestamp=None, serial_number='test-device-instance-001', value=0, ip='192.168.1.150', port=80):
     if timestamp is None:
@@ -44,21 +35,25 @@ def submit_data(timestamp=None, serial_number='test-device-instance-001', value=
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)   
+    submit = 0
     remote = 1
+    
     server_ip = get_host_ip()
+    digitemp_server_ip = '192.168.1.124'
     server_ip = '192.168.1.150'
     if remote:
-        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:8888' % server_ip)
+        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:8890' % digitemp_server_ip)
         print RemoteDigitemp.ping()
         data_set = RemoteDigitemp.GetData()
     else:
         LocalDigitemp = digitemp.Digitemp()
-        data_set = LocalDigitemp.GetData()
+        data_set      = LocalDigitemp.GetData()
 #        for ix in range(len(data)):
 #            c.submit_data(serial_number=data[ix][1], value=data[ix][2],ip='192.168.1.150')
         
     for data in data_set:
-        print "Sending", data
-        res = submit_data(serial_number=data[1], value=data[2], ip=server_ip, port=80)
-        print res
-    
+        if submit:        
+            res = submit_data(serial_number=data[1], value=data[2], ip=server_ip, port=80)
+        else:
+            print data[1], data[2]
+            

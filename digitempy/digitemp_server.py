@@ -23,7 +23,7 @@ def GetSubmitData():
 def ping():
     return 'pong'
 
-def main(host=get_host_ip(), port=8888):
+def main(host=get_host_ip(), port=8890):
     server = SimpleXMLRPCServer((host, port))
     server.register_introspection_functions()
     server.register_function(ping)
