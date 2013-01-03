@@ -2,5 +2,5 @@
 
 # Install virtual environment for the project
 # 
-# virtualenv ~/pyvenv/digitempy
+virtualenv venv
 source venv/bin/activate

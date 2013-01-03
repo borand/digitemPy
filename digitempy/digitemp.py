@@ -88,7 +88,8 @@ class Digitemp():
         
         if self.IsConnected():
             full_file_name=self.config_file_path + self.config_filename           
-            ret = self.digitemp('-q','-i','-c%s' % full_file_name)
+            ret = self.digitemp("-i","-c%s" % full_file_name)
+            print "Saving parsed file to: ", full_file_name
             print ret
             
     
@@ -135,7 +136,7 @@ class Digitemp():
     def GetData(self):
         data = []
         if self.IsConnected() and self.IsConfigured() and self.ConfigFileExists():
-            ret = self.digitemp('-a', '-q',  '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
+            ret = self.digitemp('-a', '-q', '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
             
             data_expr = re.compile('(?:<data>)(\[.*\])(?:</data>)')
             data_vector_str = data_expr.findall(ret.stdout)
