@@ -7,8 +7,6 @@ import xmlrpclib
 import datetime
 import logging
 import requests
-import sh
-import re
 import digitemp
 
 from common import get_host_ip
@@ -34,15 +32,16 @@ def submit_data(timestamp=None, serial_number='test-device-instance-001', value=
     return Request.status_code
 
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)   
+    logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.DEBUG)   
     submit = 0
     remote = 1
     
     server_ip = get_host_ip()
-    digitemp_server_ip = '192.168.1.124'
-    server_ip = '192.168.1.150'
+    digitemp_server_ip = get_host_ip() #'192.168.1.124'
+    server_ip   = '192.168.1.150'
+    server_port = 8890 
     if remote:
-        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:8890' % digitemp_server_ip)
+        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:%d' % (digitemp_server_ip, server_port))
         print RemoteDigitemp.ping()
         data_set = RemoteDigitemp.GetData()
     else:

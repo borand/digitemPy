@@ -4,8 +4,6 @@ import os
 import sh
 import simplejson
 
-
-
 class Digitemp():
     
     def __init__(self):
@@ -28,7 +26,7 @@ class Digitemp():
       
     
     
-    def _DigitempErrorCallback(self,lines):
+    def __DigitempErrorCallback(self,lines):
         return lines
     
     def IsInstalled(self):
@@ -133,6 +131,10 @@ class Digitemp():
             return None
     
     def GetData(self):
+        
+        if not self.ConfigFileExists():
+            self.GenerateConfigFile()
+            
         data = []
         if self.IsConnected() and self.IsConfigured() and self.ConfigFileExists():
             ret = self.digitemp('-a', '-q',  '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
@@ -184,9 +186,6 @@ class Digitemp():
 if __name__ == "__main__":
     #logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)    
     D = Digitemp()
-    if not D.ConfigFileExists():
-        D.GenerateConfigFile()
-    print D.ParseConfigFile()
     print D.GetData()
     #D.GetStatus()
     #temp = D.GetData()
