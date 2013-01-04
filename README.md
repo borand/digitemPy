@@ -20,7 +20,7 @@ Words of caution
 * The user running the code must be able to run sodo without password (requirement of sh package).  In my case I append lines below
   to the /etc/sudoers file.     
 
-	#includedir /etc/sudoers.d
+	includedir /etc/sudoers.d
  	myusername ALL= NOPASSWD: ALL
 
 Usage
@@ -35,11 +35,11 @@ Usage
 	pip install virtualenv
 
 3. Clone the repository  
-<code>
-git clone https://github.com/borand/digitemPy.git
-cd digitemPy
-source venv.sh
-</code>
+
+	git clone https://github.com/borand/digitemPy.git
+	cd digitemPy
+	source venv.sh
+
 
 4. At this point the virtual environment should be activated, install required packages
 	
@@ -47,26 +47,25 @@ source venv.sh
 
 5. The code was tested with digitemp [part_no]DS9490R (usb-1wire bus). Assuming that the device is plugged into the USB port.
 
-	cd digitemp
-	python digitemp.py
-	python digitemp.py
+	 cd digitemp
+	  python digitemp.py
 	 
-	Checking if digitemp_DS2490 is installed True
-	Found connected devices:  True
-	Device is configured:  True
-	Found config path /home/digitemPy/digitempy/../config/:  False
-	Found config file digitemp.conf:  False
-	Saving parsed file to:  /home/digitemPy/digitempy/../config/digitemp.conf
-	DigiTemp v3.5.0 Copyright 1996-2007 by Brian C. Lane
-	GNU Public License v2.0 - http://www.digitemp.com
-	Found DS2490 device #1 at 002/022
-	Turning off all DS2409 Couplers
-	..
-	Searching the 1-Wire LAN
-	10F237C0010800D6 : DS1820/DS18S20/DS1920 Temperature Sensor
-	ROM #0 : 10F237C0010800D6
+	  Checking if digitemp_DS2490 is installed True
+	  Found connected devices:  True
+	  Device is configured:  True
+	  Found config path /home/digitemPy/digitempy/../config/:  False
+	  Found config file digitemp.conf:  False
+	  Saving parsed file to:  /home/digitemPy/digitempy/../config/digitemp.conf
+	  DigiTemp v3.5.0 Copyright 1996-2007 by Brian C. Lane
+	  GNU Public License v2.0 - http://www.digitemp.com
+	  Found DS2490 device #1 at 002/022
+	  Turning off all DS2409 Couplers
+	  ..
+	  Searching the 1-Wire LAN
+	  10F237C0010800D6 : DS1820/DS18S20/DS1920 Temperature Sensor
+	  ROM #0 : 10F237C0010800D6
 	
-	[[0, '10F237C0010800D6', 20.3125]]
+	  [[0, '10F237C0010800D6', 20.3125]]
 	
 6. Starting the server
 
