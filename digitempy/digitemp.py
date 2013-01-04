@@ -4,6 +4,7 @@ import os
 import sh
 import simplejson
 
+
 class Digitemp():
     
     def __init__(self):
@@ -182,13 +183,11 @@ class Digitemp():
             file_content = ''        
         
         return file_content
-
             
 if __name__ == "__main__":
     #logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.INFO)    
     D = Digitemp()
-    print D.GetData()
-    #D.GetStatus()
-    #temp = D.GetData()
-#    for i in temp:
-#        print "Serial Num: %s Temperature %.2f C" % (D.SerialNumberToDec(i[1]), i[2]) 
+    temp = D.GetData()
+    
+    for i in temp:
+        print "Serial Num: %s Temperature %.2f C" % (D.SerialNumberToDec(i[1]), i[2]) 

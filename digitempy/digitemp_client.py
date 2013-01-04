@@ -4,55 +4,27 @@ Created on 2012-12-19
 @author: borand
 '''
 import xmlrpclib
-import datetime
-import logging
-import requests
-import digitemp
-
+import argparse
 from common import get_host_ip
 
-def submit_data(timestamp=None, serial_number='test-device-instance-001', value=0, ip='192.168.1.150', port=80):
-    if timestamp is None:
-        timestamp=datetime.datetime.now()
-    Request = None    
-    
-    timestamp = str(timestamp).split('.')[0]
-    para = {'datetime':timestamp, 'serial_number':serial_number,'data_value':value}
-    logging.info("submit_data: timestamp=%s, submit_data(serial_number=%s, value=%f)" % (timestamp, serial_number, value))
-    try:  
-        Request = requests.get('http://%s:%d/input' % (ip, port), params=para, timeout=3)
-        if Request.ok:
-            logging.info("Data submitted, response=" + Request.content)            
-        else:
-            logging.info("Problems with data submission")
-    except Exception, E: 
-        #ConnectionError        
-        logging.info("Errors during submission process: " + str(E))
-    
-    return Request.status_code
-
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)10s: %(message)10s', level=logging.DEBUG)   
-    submit = 0
-    remote = 1
+    parser = argparse.ArgumentParser(description='Process Input arguments, specify optional server ip and port number')
+    parser.add_argument('--ip', default=get_host_ip(), type=str, help='IP of digitemp server')
+    parser.add_argument('--port', default=8890, type=int)
     
-    server_ip = get_host_ip()
-    digitemp_server_ip = get_host_ip() #'192.168.1.124'
-    server_ip   = '192.168.1.150'
-    server_port = 8890 
-    if remote:
-        RemoteDigitemp = xmlrpclib.ServerProxy('http://%s:%d' % (digitemp_server_ip, server_port))
-        print RemoteDigitemp.ping()
-        data_set = RemoteDigitemp.GetData()
-    else:
-        LocalDigitemp = digitemp.Digitemp()
-        data_set      = LocalDigitemp.GetData()
-#        for ix in range(len(data)):
-#            c.submit_data(serial_number=data[ix][1], value=data[ix][2],ip='192.168.1.150')
+    args = parser.parse_args()     
+    server_address = 'http://%s:%d' % (args.ip, args.port)
+    RemoteDigitemp = xmlrpclib.ServerProxy(server_address)
+    try:
+        print "Sending ping to remote digitemp server at %s" % server_address
+        ping_response = RemoteDigitemp.ping()
         
-    for data in data_set:
-        if submit:        
-            res = submit_data(serial_number=data[1], value=data[2], ip=server_ip, port=80)
-        else:
-            print data[1], data[2]
+        print "Asking for Data"
+        data_set = RemoteDigitemp.GetData()
             
+        for data in data_set:
+            print "Serial number %s, Temperature %f C" % (data[1], data[2])
+    except Exception as inst:
+        print type(inst)
+        print inst.args
+        print inst
