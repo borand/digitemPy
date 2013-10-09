@@ -138,7 +138,7 @@ class Digitemp():
             self.GenerateConfigFile()
             
         data = []
-        if self.IsConnected() and self.IsConfigured() and self.ConfigFileExists():
+        if self.IsConnected() and self.ConfigFileExists(): # and self.IsConfigured()
             ret = self.digitemp('-a', '-q', '-c%s' % self.config_file_path + self.config_filename, '-o<data>[%s, "%R", %C]</data>')
             
             data_expr = re.compile('(?:<data>)(\[.*\])(?:</data>)')
@@ -165,7 +165,7 @@ class Digitemp():
     def GetStatus(self):
         print "Checking if %s is installed" % self.digitemp_cmd_str, self.IsInstalled()
         print "Found connected devices: ", self.IsConnected()
-        print "Device is configured: ", self.IsConfigured()
+        #print "Device is configured: ", self.IsConfigured()
         print "Found config path %s: " % self.config_file_path, os.path.exists(self.config_file_path)
         print "Found config file %s: " % self.config_filename, self.ConfigFileExists() 
     
