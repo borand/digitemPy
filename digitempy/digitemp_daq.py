@@ -3,12 +3,13 @@
 Usage:
   digitemp_daq.py localhost [--server=SERVER | --test]
   digitemp_daq.py [--host=IP_ADDRESS | --port=REMOTE_PORT | --server=SERVER | --test] 
+  digitemp_daq.py [--host=IP_ADDRESS | --port=REMOTE_PORT]
   digitemp_daq.py (-h | --help)
 
 Options:
   -h, --help
-  --server=SERVER     [default: 192.168.1.150]
-  --host=IP_ADDRESS   [default: 192.168.1.124]
+  --server=SERVER     [default: sensoredweb.heroku.com]
+  --host=IP_ADDRESS   [default: 192.168.1.11]
   --port=REMOTE_PORT  [default: 8890]
   --test
 
